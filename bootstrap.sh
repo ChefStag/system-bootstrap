@@ -4,6 +4,12 @@
 # Set the source of truth
 BASE_DIR="/data/data/com.termux/files/home/DreamManifest"
 
+# Force-set the default mirror if one isn't detected
+if [ ! -f "$PREFIX/etc/apt/sources.list.d/termux.list" ]; then
+    echo "deb https://packages.termux.dev/apt/termux-main stable main" > $PREFIX/etc/apt/sources.list
+    apt update -y
+fi
+
 echo "--- BUILDING INFRASTRUCTURE ---"
 mkdir -p "$BASE_DIR/apps" "$BASE_DIR/bin" "$BASE_DIR/logs"
 
