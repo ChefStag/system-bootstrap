@@ -1,12 +1,13 @@
 #!/bin/bash
-# bootstrap.sh
+# bootstrap.sh - The "Golden Baseline"
 
-BASE_DIR="$HOME/DreamManifest"
+# Hard-coded absolute path to avoid variable expansion issues
+BASE_DIR="/data/data/com.termux/files/home/DreamManifest"
 
 echo "--- BUILDING INFRASTRUCTURE ---"
 mkdir -p "$BASE_DIR/apps" "$BASE_DIR/bin" "$BASE_DIR/logs"
 
-# Ensure PATH is set
+# Ensure PATH is set for this session and permanently
 if [[ ":$PATH:" != *":$BASE_DIR/bin:"* ]]; then
     echo 'export PATH=$PATH:'"$BASE_DIR/bin" >> ~/.bashrc
     export PATH=$PATH:$BASE_DIR/bin
@@ -25,9 +26,19 @@ git config user.email "your-email@example.com"
 git config credential.helper store
 
 echo "--- RUNNING RECOVERY ---"
-chmod +x scripts/backend-recovery.sh
-./scripts/backend-recovery.sh
+# Check if scripts/ exists, otherwise assume root
+if [ -f "scripts/backend-recovery.sh" ]; then
+    chmod +x scripts/backend-recovery.sh
+    ./scripts/backend-recovery.sh
+elif [ -f "backend-recovery.sh" ]; then
+    chmod +x backend-recovery.sh
+    ./backend-recovery.sh
+else
+    echo "ERROR: Could not find backend-recovery.sh in the repo!"
+    exit 1
+fi
 
-# Force refresh
+# Force refresh the shell for the current session
 source ~/.bashrc
+
 echo "Bootstrap complete. Your environment is ready."
