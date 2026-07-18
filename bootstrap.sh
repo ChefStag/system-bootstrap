@@ -25,6 +25,25 @@ if [ ! -d "$BASE_DIR/apps/dream-core" ]; then
     git clone https://github.com/ChefStag/dreamspace-core.git dream-core
 fi
 
+
+#!/data/data/com.termux/files/usr/bin/bash
+set -e # Exit on error
+
+# 1. Update and install base requirements
+pkg update -y
+pkg upgrade -y
+pkg install -y git
+
+# 2. Safely handle .bashrc
+if [ ! -f "$HOME/.bashrc" ]; then
+    touch "$HOME/.bashrc"
+fi
+
+# 3. Clone and proceed
+git clone https://github.com/ChefStag/system-bootstrap.git
+cd system-bootstrap
+bash bootstrap.sh
+
 # Set Identity for the environment
 cd "$BASE_DIR/apps/dream-core"
 git config user.name "ChefStag"
