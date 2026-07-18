@@ -2,38 +2,34 @@
 # bootstrap.sh - The "Golden Baseline"
 set -e 
 
-# 1. Set variables
 BASE_DIR="$HOME/DreamManifest"
 
-# 2. Fix Repository Mirrors (Non-interactively)
-if [ ! -f "$PREFIX/etc/apt/sources.list.d/termux.list" ]; then
-    echo "deb https://packages.termux.dev/apt/termux-main stable main" > "$PREFIX/etc/apt/sources.list"
-    pkg update -y
-fi
+# 1. Ensure minimal dependencies via pkg only
+pkg update -y
+pkg install -y git python
 
-# 3. Ensure base dependencies
-pkg install -y git
-
-# 4. Build Infrastructure
-echo "--- BUILDING INFRASTRUCTURE ---"
+# 2. Build Infrastructure
 mkdir -p "$BASE_DIR/apps" "$BASE_DIR/bin" "$BASE_DIR/logs"
 
-# 5. Handle PATH configuration
+# 3. Handle PATH
 if ! grep -q "DreamManifest/bin" "$HOME/.bashrc"; then
     echo "export PATH=\$PATH:$BASE_DIR/bin" >> "$HOME/.bashrc"
 fi
-export PATH=$PATH:$BASE_DIR/bin
 
-# 6. Sync Core
-echo "--- SYNCING CORE ---"
+# 4. Sync Core
 if [ ! -d "$BASE_DIR/apps/dream-core" ]; then
     cd "$BASE_DIR/apps"
     git clone https://github.com/ChefStag/dreamspace-core.git dream-core
 fi
 
-# 7. Set Identity
+# 5. Set Identity
 cd "$BASE_DIR/apps/dream-core"
 git config user.name "ChefStag"
+git config user.email "your-email@example.com"
+git config credential.helper store
+
+echo "Bootstrap complete. Core infrastructure ready."
+echo "CRITICAL: Recovery skipped to prevent forbidden pip usage."
 git config user.email "your-email@example.com"
 git config credential.helper store
 
