@@ -2,6 +2,29 @@
 # bootstrap.sh - The "Golden Baseline"
 set -e 
 
+#!/data/data/com.termux/files/usr/bin/bash
+
+# --- AUTOMATED MIRROR STABILIZATION ---
+# If the apt update fails or the sources list is suspect, force set your verified mirror
+fix_mirrors() {
+    echo "--- STABILIZING REPOSITORY MIRRORS ---"
+    # Create the directory if it doesn't exist
+    mkdir -p "$PREFIX/etc/apt/sources.list.d"
+    
+    # Write your verified mirror directly to the sources.list
+    echo "deb https://gnlug.org/pub/termux/termux-main stable main" > "$PREFIX/etc/apt/sources.list"
+    
+    # Update the package index
+    pkg update
+}
+
+# Run the check: if pkg update fails, run the fix
+if ! pkg update -y > /dev/null 2>&1; then
+    fix_mirrors
+fi
+# ---------------------------------------
+
+
 BASE_DIR="$HOME/DreamManifest"
 
 # 1. Ensure minimal dependencies via pkg only
