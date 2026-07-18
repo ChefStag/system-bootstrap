@@ -1,17 +1,17 @@
 #!/bin/bash
 # bootstrap.sh - The "Golden Baseline"
 
-# Hard-coded absolute path to avoid variable expansion issues
+# Set the source of truth
 BASE_DIR="/data/data/com.termux/files/home/DreamManifest"
 
 echo "--- BUILDING INFRASTRUCTURE ---"
 mkdir -p "$BASE_DIR/apps" "$BASE_DIR/bin" "$BASE_DIR/logs"
 
-# Ensure PATH is set for this session and permanently
-if [[ ":$PATH:" != *":$BASE_DIR/bin:"* ]]; then
+# Ensure PATH is set permanently
+if ! grep -q "DreamManifest/bin" ~/.bashrc; then
     echo 'export PATH=$PATH:'"$BASE_DIR/bin" >> ~/.bashrc
-    export PATH=$PATH:$BASE_DIR/bin
 fi
+export PATH=$PATH:$BASE_DIR/bin
 
 echo "--- SYNCING CORE ---"
 if [ ! -d "$BASE_DIR/apps/dream-core" ]; then
@@ -19,21 +19,20 @@ if [ ! -d "$BASE_DIR/apps/dream-core" ]; then
     git clone https://github.com/ChefStag/dreamspace-core.git dream-core
 fi
 
-# Set Identity to prevent 'Author identity unknown' errors
+# Set Identity for the environment
 cd "$BASE_DIR/apps/dream-core"
 git config user.name "ChefStag"
 git config user.email "your-email@example.com"
 git config credential.helper store
 
 echo "--- RUNNING RECOVERY ---"
-# Check if scripts/ exists, otherwise assume root
-if [ -f "scripts/backend-recovery.sh" ]; then
-    chmod +x scripts/backend-recovery.sh
-    ./scripts/backend-recovery.sh
-elif [ -f "backend-recovery.sh" ]; then
-    chmod +x backend-recovery.sh
-    ./backend-recovery.sh
-else
+# Execute the Cloud-based recovery script
+chmod +x backend-recovery.sh
+./backend-recovery.sh
+
+# Force refresh the shell for the current session
+source ~/.bashrc
+echo "Bootstrap complete. Your environment is fully synced with the Cloud."
     echo "ERROR: Could not find backend-recovery.sh in the repo!"
     exit 1
 fi
