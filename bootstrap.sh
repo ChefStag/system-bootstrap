@@ -2,6 +2,16 @@
 # bootstrap.sh - The "Golden Baseline"
 set -e 
 
+# Anti-Pip Interceptor
+pip() {
+    echo "--- [SECURITY ALERT] ---"
+    echo "Direct pip usage is FORBIDDEN in this environment to prevent system breakage."
+    echo "Use 'pkg install python-<package>' instead."
+    return 1
+}
+export -f pip
+
+
 #!/data/data/com.termux/files/usr/bin/bash
 
 # --- AUTOMATED MIRROR STABILIZATION ---
